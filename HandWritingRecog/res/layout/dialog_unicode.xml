@@ -1,5 +1,5 @@
 <GridView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/gridView1"
+    android:id="@+id/gridView_mul"
     android:numColumns="10"
     android:gravity="center"
     android:columnWidth="80dp"

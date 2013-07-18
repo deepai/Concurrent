@@ -2,12 +2,12 @@ package handwriting.handwritingrecog;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import preprocessing.BoundingBox;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Log;
 import android.widget.Toast;
 
 import Character_Stroke.Character_Stroke;
@@ -22,7 +22,7 @@ public class Matcher {
 																	// thumbnail
 																	// of each
 																	// charactertype
-	HashMap<String, float[]> Strokes;
+	ConcurrentHashMap<String,float[]> concurrentmap;
 	ArrayList<float[]> InputCharacter; // Userdrawn Character
 	ArrayList<String> StrokeSequence;
 	String[] mappedStrokesSequences;
@@ -30,14 +30,12 @@ public class Matcher {
 	ArrayList<BoundingBox> StrokesHeight;
 	public int errorcount = 0;
 
-	public Matcher(
-			HashMap<String, ArrayList<Character_Stroke>> characterStrokes,
-			HashMap<String, float[]> strokes, Context ct,
+	public Matcher(HashMap<String, ArrayList<Character_Stroke>> characterStrokes,ConcurrentHashMap<String, float[]> concurrentstrokes, Context ct,
 			HashMap<String, ArrayList<String>> lutback) throws Exception {
 		// TODO Auto-generated constructor stub
 		LUTback = lutback;
 		LUTCharStrokes = characterStrokes;
-		Strokes = strokes;
+		concurrentmap=concurrentstrokes;
 		// keys=Strokes.keySet();
 		this.ct = ct;
 
@@ -66,30 +64,30 @@ public class Matcher {
 																	// the
 																	// strokes;
 		if (CharacterID.contains("38")) {  //if it contains the Character 38 i.e () then directly save it according to its height
-			synchronized (Strokes) { 
+			
 				if (InputCharacter.size() == 2) {
 					if (StrokesHeight.get(0).height < StrokesHeight.get(1).height) {
 
-						LRUReplace("33", InputCharacter.get(0), Strokes);
-						LRUReplace("16", InputCharacter.get(1), Strokes);
+						LRUReplace("33", InputCharacter.get(0), concurrentmap);
+						LRUReplace("16", InputCharacter.get(1), concurrentmap);
 
 					} else {
 
-						LRUReplace("16", InputCharacter.get(0), Strokes);
-						LRUReplace("33", InputCharacter.get(1), Strokes);
+						LRUReplace("16", InputCharacter.get(0),concurrentmap);
+						LRUReplace("33", InputCharacter.get(1),concurrentmap);
 
 					}
 					return;
 				}
-			}
+			
 			
 		}
 		
-		synchronized (Strokes) {
+
 			for (int i = 0; i < keysInput.length; i++) // add all the Strokes
 			{
 
-				for (String s : Strokes.keySet()) {  // build the reduced set comprising of all the samples present in the library having the same strokes as the corrected Stroke
+				for (String s : concurrentmap.keySet()) {  // build the reduced set comprising of all the samples present in the library having the same strokes as the corrected Stroke
 					String key = s;
 					String a = CharLUT.getStrokename(key); // Just Strokeclass from the Main Stroke library
 				
@@ -105,7 +103,7 @@ public class Matcher {
 				}
 			}
 			//Log.v("debugHWRECOGNISER",Strokesname.toString());
-		}
+		
 		
 		new recogniser().execute(Strokesname); // execute the mapping
 
@@ -135,7 +133,7 @@ public class Matcher {
 		return SingleStroke;
 	}
 
-	public void LRUReplace(String strokeClass, float[] strokePoints,	HashMap<String, float[]> strokeMap, String sampleMatchName) {
+	public void LRUReplace(String strokeClass, float[] strokePoints,	ConcurrentHashMap<String,float[]> strokeMap, String sampleMatchName) {
 		boolean x_present = false;
 		int maxNum = 0, num = 0;
 		for (String key : strokeMap.keySet()) {
@@ -174,7 +172,6 @@ public class Matcher {
 			// deleting all non-usermade samples of that StrokeClass from
 			// Library
 			if (x_present == true)
-
 			{
 				boolean temp = true;
 				while (temp) {
@@ -196,7 +193,7 @@ public class Matcher {
 
 	}
 
-	public void LRUReplace(String strokeClass, float[] strokePoints,HashMap<String, float[]> strokeMap) {
+	public void LRUReplace(String strokeClass, float[] strokePoints,ConcurrentHashMap<String, float[]> strokeMap) {
 		boolean x_present = false;
 		int maxNum = 0, num = 0;
 		for (String key : strokeMap.keySet()) {
@@ -245,7 +242,6 @@ public class Matcher {
 			//Log.v("debugHWRECOGNISER","sequence of characters in reduced set");
 			//Log.v("debugHWRECOGNISER", debugsequence);
 			*/
-				synchronized (Strokes) {
 					for (int i = 0; i < InputCharacter.size(); i++) {
 						double minValue = Double.MAX_VALUE;
 						String ClassRecognizedMin = null;
@@ -254,7 +250,7 @@ public class Matcher {
 							String tempClass = params[0].get(j); // temporary
 																	// class
 																	// name
-							double score = DTWRecogniser.DTWDistance(InputCharacter.get(i),	Strokes.get(tempClass));
+							double score = DTWRecogniser.DTWDistance(InputCharacter.get(i),	concurrentmap.get(tempClass));
 							if (score<minValue) {
 								minValue = score; // set as minimum score
 								ClassRecognizedMin = tempClass; // set as
@@ -269,15 +265,15 @@ public class Matcher {
 							////Log.v("debugHWRECOGNISER",mappedStrokesSequences[i]+" "+ClassRecognizedMin);
 							Strokesadded +=" " + ClassRecognizedMin; 
 							LRUReplace(
-									CharLUT.getStrokename(ClassRecognizedMin),InputCharacter.get(i), Strokes,ClassRecognizedMin); // add
+									CharLUT.getStrokename(ClassRecognizedMin),InputCharacter.get(i), concurrentmap,ClassRecognizedMin); // add
 									errorcount++; // increase the count of an error
 							}
 
 					}
 					// SaveFile.WriteFile("/mnt/sdcard/HWREcogfiles/Library.dat",Strokes);
 					result = "successfully added " + Strokesadded;
-				}
-			return result;
+			
+					return result;
 		}
 
 		@Override

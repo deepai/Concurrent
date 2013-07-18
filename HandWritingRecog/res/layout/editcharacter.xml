@@ -3,22 +3,22 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content" 
     android:background="#000000">
+
     <LinearLayout
         android:id="@+id/linearLayout1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true" >
+        android:layout_alignParentTop="true"
+        android:background="@drawable/back" >
 
         <ImageView
             android:id="@+id/imageView_group"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:layout_marginBottom="27dp"
-            android:layout_marginLeft="27dp"
-            android:layout_marginRight="27dp"
-            android:layout_marginTop="27dp"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_margin="1dp"
+            android:background="#ffffff"
             android:scaleType="fitCenter" />
 
     </LinearLayout>

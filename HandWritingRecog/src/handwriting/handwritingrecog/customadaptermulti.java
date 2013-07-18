@@ -20,6 +20,7 @@ import android.widget.ImageView;
 /*********************************ADAPTER CLASS FOR MULTISELECT DISPLAY************************************************************************/
 public class customadaptermulti extends ArrayAdapter<String> { 
 	
+	Paint pt[]=new Paint[6];
 	HashMap<String,ArrayList<Character_Stroke>> characterStrokes;
     ArrayList<String> obj;
     Context context = null;
@@ -31,6 +32,20 @@ public class customadaptermulti extends ArrayAdapter<String> {
 		obj=t;
 		this.context=context;
 		characterStrokes=tz;
+		for(int i=0;i<6;i++)
+		{
+			pt[i]=new Paint();
+			pt[i].setStrokeWidth(12);
+		}
+	
+		pt[0].setColor(Color.GREEN);
+		pt[1].setColor(Color.RED);
+		pt[2].setColor(Color.BLACK);
+		pt[3].setColor(Color.BLUE);
+        pt[4].setColor(Color.DKGRAY);
+		pt[5].setColor(Color.MAGENTA);
+	
+
 	}
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {//set an Image and set its tag
@@ -57,19 +72,17 @@ public class customadaptermulti extends ArrayAdapter<String> {
 			System.out.println("debug:null recieved");
 		else
 			System.out.println("debug:"+temp.size());
-		Paint pt=new Paint();
-		pt.setColor(Color.BLACK);
-		pt.setStrokeWidth(10);
 	/*
 	 * Set the image as the background 	
 	 */
 		
 		Bitmap bp=Bitmap.createBitmap(width,height,Bitmap.Config.RGB_565);
 		Canvas ct=new Canvas(bp);
-		ct.drawColor(Color.WHITE);
+		ct.drawColor(Color.BLACK);
+		int index=0;
 		for(Character_Stroke s:temp)
 		{
-			ct.drawPoints(s.getStroke(), pt); //draw the strokes
+			ct.drawPoints(s.getStroke(), pt[index++]); //draw the strokes
 		}
 		return bp;
 	}
